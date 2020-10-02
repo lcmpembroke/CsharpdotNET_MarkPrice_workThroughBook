@@ -1,0 +1,34 @@
+{
+	"folders": [
+		{
+			"path": "Numbers"
+		},
+		{
+			"path": "Basics"
+		},
+		{
+			"path": "Variables"
+		},
+		{
+			"path": "Arrays"
+		},
+		{
+			"path": "NullHandling"
+		},
+		{
+			"path": "ExploringConsole"
+		},
+		{
+			"path": "Formatting"
+		},
+		{
+			"path": "Arguments"
+		},
+		{
+			"path": "Exercise02"
+		},
+		{
+			"path": "/home/lcppembroke/00_00_dotNET/dotNET_MarkPriceBook/Repos/cs8dotnetcore3/Chapter02/Exercise02"
+		}
+	]
+}
