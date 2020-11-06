@@ -1,5 +1,8 @@
+using System.Xml.Serialization;
+
 namespace Packt.Shared
 {
+    //[XmlInclude(typeof(Customer))]
     public class User
     {
         public string Name {get; set;}

@@ -15,6 +15,8 @@ namespace Packt.Shared
         // salt size has to be >= 8bytes. Here, use 16 bytes
         private static readonly byte[] salt = Encoding.Unicode.GetBytes("7BANANAS");
 
+        //private static readonly string password = "BETHLEHEM01";
+
         // iterations must be >=1000. Here use 2000.
         private static readonly int iterations = 2000;        
 
@@ -111,6 +113,26 @@ namespace Packt.Shared
             return newUser;
         }
 
+        public static Customer CreateCustomer(string username, string password, string cardNumber)
+        {
+            // generate a random salt (string saltText)
+            var rng = RandomNumberGenerator.Create();
+            var randomSaltBytes = new byte[16];
+            rng.GetBytes(randomSaltBytes);  // takes a struct so argument must be by reference
+            var saltText = Convert.ToBase64String(randomSaltBytes);
+
+            // generate the salted and hashed password
+            var saltedHashedPassword = SaltAndHashPassword(password,saltText);
+
+            string encryptedCardNumber = Encrypt(cardNumber, password); 
+
+            var newCustomer = new Customer { Name = username, Salt = saltText, SaltedHashedPassword = saltedHashedPassword, EncryptedCardNumber = encryptedCardNumber};
+
+            Users.Add(newCustomer.Name, newCustomer);   // note this is not persisting data anywhere, just saving in current running program
+
+            return newCustomer;
+        }        
+
         public static void Login(string username,  string password)
         {
             if (CheckPassword(username, password))
@@ -125,7 +147,9 @@ namespace Packt.Shared
         private static string SaltAndHashPassword(string password, string salt)
         {
             var sha = SHA256.Create();
+            Console.WriteLine(sha.ToString());
             var saltedPassword = password + salt;   // attach the salt onto the end of the password before hashing
+            Console.WriteLine(saltedPassword);
             string saltedHashedPassword = Convert.ToBase64String(sha.ComputeHash(Encoding.Unicode.GetBytes(saltedPassword)));
             return saltedHashedPassword;
         }
@@ -137,18 +161,30 @@ namespace Packt.Shared
             {
                 // find the user
                 var user = Users[username];
-
+                
+                Console.WriteLine();
+                Console.WriteLine("In Check Password()....");
+                Console.WriteLine("USER FOUND:" + user.Name);
+                Console.WriteLine("USER salt: " + user.Salt);
+                Console.WriteLine("USER SaltedHashedPassword  : " + user.SaltedHashedPassword);
+                Console.WriteLine("password: " + password);
+                
                 // generate the salted and hashed password to check, having got the salt from the registered user
                 string saltedHashedPasswordToCheck = SaltAndHashPassword(password,user.Salt);
+                Console.WriteLine("saltedHashedPasswordToCheck: " + saltedHashedPasswordToCheck);
+                bool x = string.Equals(saltedHashedPasswordToCheck,user.SaltedHashedPassword);
 
+
+                Console.WriteLine("*************x: " + x);
+                Console.WriteLine();
                 // compare the stored salted and hashed passwords with the one just regenerated
-                return (saltedHashedPasswordToCheck == user.SaltedHashedPassword);                
+                return string.Equals(saltedHashedPasswordToCheck,user.SaltedHashedPassword);                
             }
             else
             {
                 return false;
             }
-        }
+        }       
 
         public static string Encrypt(string plainText, string password)
         {
