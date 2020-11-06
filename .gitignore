@@ -12,6 +12,9 @@
 *.sln.docstates
 *.code-workspace
 
+# files generated in testing code
+**/Chapter10/PracticeEncryptHash/*.xml
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 

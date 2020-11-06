@@ -12,7 +12,7 @@ namespace Packt.Shared
         [Column(TypeName = "ntext")]
         public string Description { get; set; }
 
-        // defines a navigation property for related rows
+        // defines a navigation property for related rows - NOTE it's virtual to allow EFCore to inherit and override the properties so it can do features like lazy loading
         public virtual ICollection<Product> Products { get; set; }
 
         public Category()

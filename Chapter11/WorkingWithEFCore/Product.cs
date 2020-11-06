@@ -11,8 +11,10 @@ namespace Packt.Shared
         [StringLength(40)]
         public string ProductName { get; set; }
 
-        // here we effectvely rename the UnitPrice column, so the class refers to it as Cost. 
-        // The real column name is identified by decorating the property with the [Column] attribute, and specifying its column name in that
+        // here we effectively RENAME the Product table's UnitPrice column, so the C# code class refers to it as Cost. 
+        // The database table's actual column name is identified by decorating the property with the [Column] attribute, and specifying its column name in that
+        // This uses te EF Core annotation attributes
+        //      an alternative way to do same thing is to use EF Core Fluent API... in OnModelCreatiing() method of the database context class see Northwind.cs in this case
         [Column("UnitPrice", TypeName = "money")]
         public decimal? Cost { get; set; }
 
