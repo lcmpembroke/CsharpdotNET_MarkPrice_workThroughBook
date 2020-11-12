@@ -1,0 +1,56 @@
+
+Chapter 11:
+-------------------------------------------------------
+
+CREATE A NEW PROJECT for your app that will talk to a database, and change into the directory of the project
+
+
+INSTALL EFCore - for your given database provider
+i.e. here it's the package to talk to SQLite
+dotnet add package Microsoft.EntityFrameworkCore.Sqlite --version 3.1.9
+
+
+CREATE THE (DATABASE) MODEL
+This comprises the context class (database class, inherits from DbContext)  and entity classes (table classes indicating relationshsips) 
+that make up the model.
+Here in ExportDataDifferentSerialization project:
+Northwind.db is database
+Northwind.cs is the context class for the database.
+    Has method OnConfiguring()  - to point to location of database, and setting up database context options
+    Has method OnModelCreating() - where EF Core Fluent API used to set up fields in entites as required, string lengths etc, query filters
+    It defines the entity classes as properties of DBSets of the entity type  e.g. public DbSet<Category> Categories { get; set; })
+Category.cs and Product.cs are both entity classes  - these relate to their tables. 
+    Can use annotation attributes here (as alternative to EF Core fluent API for stating field lengths, rename a column for use in C# code etc)
+
+
+CREATE THE DATABASE (make sure database provider e.g.SQLite database already installed)
+OPTION - use SQL:
+Run create table and insert into table commands
+Set up database tables and data...for chapter 11 exercise, copied raw sql to create the Northwind database into the folder your console app is in:
+ It's here: https://raw.githubusercontent.com/markjprice/cs8dotnetcore3/master/sql-scripts/Northwind.sql
+ I put the .db file in the Chapter 11 folder (parent foler to the console app)
+
+OPTION - use database migrations...
+see https://docs.microsoft.com/en-us/ef/core/managing-schemas/migrations/?tabs=dotnet-core-cli
+
+Set up CRUD in your application
+    Create  db.Add() then db.SaveChanges()
+    Read    db.Entities
+    Update  find the entity to change, then Entity.ColumnName = "new value", then db.SaveChanges()
+    Delete  db.Remove() then db.SaveChanges()
+
+    NOTES about data annotations...two types:
+// Data Annotation Attributes  (using System.ComponentModel.DataAnnotations;)
+//     Key: Key is mainly used to define the primary or composite key on table.
+//     ConcurrencyCheck: ConcurrencyCheck annotation allows you to flag one or more properties to be used for concurrency checking in the database when a user edits or deletes an entity.
+//     StringLength: StringLength is user to define the length of string allowed in table
+//     MinLength: MinLength define the minimum required length of string.
+//     MaxLength: MaxLength define the minimum required length of string.
+//     Required: The Required annotation will ensure that property has data in it.
+
+// Data Annotation Schema Attributes:   (using System.ComponentModel.DataAnnotations.Schema; )
+//     Table: Provides the alternate table name.
+//     Column: Used to provide the column name or column schema.
+//     Foreign Key: Create a relationship 
+//     Index: To defined the clustered/non clustered index.
+//     Complex Type: Make the class ascComplex type.
