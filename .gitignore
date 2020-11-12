@@ -16,8 +16,8 @@
 **/Chapter10/PracticeEncryptHash/*.xml
 
 # database file (can generate and insert data using the sql)
-**/Chapter11/Northwind.db
-**/Chapter11/*/*.db
+**/Chapter*/*/*.db
+**/Chapter*/*.db
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

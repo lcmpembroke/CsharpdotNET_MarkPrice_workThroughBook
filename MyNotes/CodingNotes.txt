@@ -1,3 +1,33 @@
+Github
+
+Username for 'https://github.com': lcmpembroke
+
+Login to GitHub online
+ --> Create repo on GitHub ready for it code go into....
+
+ON Git in my COMMAND LINE:
+git init
+git status
+git add .
+git commit -m "Initial commit"
+git remote add origin   https://github.com/lcmpembroke/Laravel_Scratch_Ep1to6_simple_PagesController.git
+git push -u origin master
+
+git remote get-url origin
+
+If forgotton to add a file to gitignore and it'd been added...then need to remove...run:
+git rm <fileName> --cache
+
+
+Git Credential helper - default time 15mins in cache
+$ git config --global credential.helper cache
+# Set git to use the credential memory cache
+
+$ git config --global credential.helper 'cache --timeout=3600'
+# Set the cache to timeout after 1 hour (setting is in seconds)
+
+
+git clone https://github.com/lcmpembroke/****.git
 
 Chapter 11:
 -------------------------------------------------------
