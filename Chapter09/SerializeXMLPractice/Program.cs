@@ -1,61 +1,51 @@
-﻿using Pembroke.Shared;
-using System;
+using Pembroke.Shared;
+using System.Collections.Generic;
+using System.IO;
+using System.Xml.Serialization;
 using static System.Console;
-using System.Collections.Generic;   // List<T>
-using System.IO;                    // FileStream
-using static System.IO.Path;        
 using static System.Environment;
-using System.Xml.Serialization;     // XmlSerializer
+using static System.IO.Path;
 
-
-namespace SerializeXMLPractice
+namespace Exercise02
 {
-    class Program
-    {       
-        static void Main(string[] args)
-        {
-            WriteLine("\nSerializeXMLPractice running ...");
+  class Program
+  {
+    static void Main(string[] args)
+    {
+      // create a file path to write to
+      string path = Combine(CurrentDirectory, "shapes.xml");
 
-            // create list of shapes to serialize
-            var listOfShapes = new List<Shape>()
-            {
-                new Rectangle {Colour = "Yellow", Height = 2.0, Width = 3.0},
-                new Circle { Colour = "Red", Radius = 2.5},
-                new Rectangle {Colour = "Yellow", Height = 20.0, Width = 11.0},
-                new Circle { Radius = 12.3, Colour = "Purple"},
-                new Circle {Colour = "Orange", Radius = 4},
-                new Square {Colour = "Blue", Width = 10}
-            };
+      // create a list of Shape objects to serialize
+      var listOfShapes = new List<Shape>
+      {
+          new Circle { Colour = "Red", Radius = 2.5 },
+          new Rectangle { Colour = "Blue", Height = 20.0, Width = 10.0 },
+          new Circle { Colour = "Green", Radius = 8 },
+          new Circle { Colour = "Purple", Radius = 12.3 },
+          new Rectangle { Colour = "Blue", Height = 45.0, Width = 18.0  }
+      };
 
-            string xmlShapesFile = Combine(CurrentDirectory, "shapes.xml");
+      // create an object that knows how to serialize and deserialize a list of Shape objects
+      var serializerXml = new XmlSerializer(typeof(List<Shape>));
 
-            // create object that formats the list of shapes as XML
-            WriteLine($"... about to create new xmlSerializer ...");
-            // ERROR THROWN NEXT LINE DUE TO NULL REFERENCE ...works if use  typeof(List<Circle>), but not typeof(List<Shape>),typeof(List<Rectangle>),typeof(List<Square>)
-            var xmlSerializier = new XmlSerializer(typeof(List<Shape>));
-            WriteLine($"... HIP HIP HOORAY finished creating the xmlSerializer ...");
+      WriteLine("Saving shapes to XML file:");
+      FileStream fileXml = File.Create(path);
+      serializerXml.Serialize(fileXml, listOfShapes);
+      fileXml.Dispose();
 
-            using (FileStream fileStream = File.Create(xmlShapesFile))
-            {
-                WriteLine("\n...about to serialize the listOfShapes to file...");
-                // serialize the object graph to the stream
-                xmlSerializier.Serialize(fileStream, listOfShapes);
-            } 
 
-            WriteLine($"... just serialized ..."); 
-            // // deserialize to output list of shapes with their areas and colour
-            using (FileStream fileStream = File.Open(xmlShapesFile,FileMode.Open))
-            {
-                WriteLine("\n...about to deserialize the listOfShapes ...");
-                // either syntax for explicit type conversion
-                //List<Shape> loadedXmlShapes = (List<Shape>)xmlSerializier.Deserialize(fileStream);
-                List<Shape> loadedXmlShapes = xmlSerializier.Deserialize(fileStream) as List<Shape>;
+      WriteLine("Loading shapes from XML file:");
+      fileXml = File.Open(path, FileMode.Open);
 
-                foreach (Shape item in loadedXmlShapes)
-                {
-                    WriteLine($"{item.GetType().Name} has area: {item.Area} and colour: {item.Colour}"); 
-                }                
-            } 
-        }
+      List<Shape> loadedShapesXml = 
+        serializerXml.Deserialize(fileXml) as List<Shape>;
+
+      fileXml.Dispose();
+
+      foreach (Shape item in loadedShapesXml)
+      {
+        WriteLine($"{item.GetType().Name} is {item.Colour} and has an area of {item.Area:N2}");
+      }
     }
+  }
 }

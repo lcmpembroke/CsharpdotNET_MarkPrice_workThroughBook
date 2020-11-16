@@ -1,13 +1,12 @@
-﻿using System;
+﻿//command line command to add project reference: dotnet add PracticeEncryptHash.csproj reference ../CryptographyLib/CryptographyLib.csproj
+using System;
 using static System.Console;
-using Packt.Shared;             //command line command to add project reference to this: dotnet add PracticeEncryptHash.csproj reference ../CryptographyLib/CryptographyLib.csproj
+using Packt.Shared;             
 using System.IO;                // for file stream
 using static System.IO.Path;    // for working out filepaths given client environent
 using static System.Environment;// for getting current directory path
-using System.Xml.Serialization; // for XmlSerializer
-using System.Threading.Tasks;   // for Task
 using System.Xml;               // for XmlReaderSettings
-using System.Threading;
+using System.Collections.Generic;
 
 namespace PracticeEncryptHash
 {
@@ -16,70 +15,64 @@ namespace PracticeEncryptHash
         static void Main(string[] args)
         {
             WriteLine("\nPracticeEncryptHash running ...");
-
-            // get customer data
-            Write("Enter your name: ");
-            string name = ReadLine();
-            Write("Enter credit card number to be encrypted: ");
-            string cardNumber = ReadLine();           
-            Write("Enter password to be salted and hashed: ");
-            Console.WriteLine();
-            string password = ReadLine();           
-
-            // ensure credit card number is encrypted, password is salted and hashed
             
-            Customer protectedCustomer = Protector.CreateCustomer(name, cardNumber, password);
+            WriteLine("\nEnter password for encryption/decryption: ");
+            string passwordToEncrypt = ReadLine();
+
+            // Create customer data for two example customers and note they have the same password
+            var customers = new List<Customer>
+            {
+                new Customer
+                {
+                Name = "Bob Smith",
+                CreditCard = "1234-5678-9012-3456",
+                Password = "Pa$$w0rd",
+                },
+                new Customer
+                {
+                Name = "Leslie Knope",
+                CreditCard = "8002-5265-3400-2511",
+                Password = "Pa$$w0rd",
+                }
+            };
 
             // write protected data to file
-            WritetoXmlFile(protectedCustomer);
-
-            Write("Enter name of customer in current directory to be read: ");
-            string customerName = ReadLine();
-            Write("Enter password: ");
-            string customerPassword = ReadLine();
-
-            //  
-            if (Protector.CheckPassword(customerName,customerPassword))
-            {
-                customerXMLFileReader(customerName, customerPassword);
-            }
-            else
-            {
-                WriteLine("Wrong password.");
-                return;
-            }
+            WritetoXmlFile(customers, passwordToEncrypt);
 
             //TODO: put in delete file function!
         }
 
-        private static void WritetoXmlFile(Customer protectedCustomer)
+        private static void WritetoXmlFile(List<Customer> customers, string passwordToEncrypt)
         {
-            // in reality, would need to consider altering name to remove whitespace etc for file name...
-            string xmlCustomerFilePath = Combine(CurrentDirectory, protectedCustomer.Name + ".xml");
-            var xmlSerializer = new XmlSerializer(typeof(Customer));
+            // define an XML file to write to
+            string xmlFile = Combine(CurrentDirectory, "..", "protected-customers.xml");
 
-            using (FileStream fileStream = File.Create(xmlCustomerFilePath))
+            var xmlWriter = XmlWriter.Create(xmlFile,new XmlWriterSettings { Indent = true });
+
+            xmlWriter.WriteStartDocument();
+            xmlWriter.WriteStartElement("customers");    
+
+            foreach (Customer customer in customers)
             {
-                xmlSerializer.Serialize(fileStream, protectedCustomer);
+                xmlWriter.WriteStartElement("customer");
+                xmlWriter.WriteElementString("name", customer.Name);
+
+                xmlWriter.WriteElementString("creditcard",  Protector.Encrypt(customer.CreditCard, passwordToEncrypt));
+                        
+                // to protect the password we must salt and hash it, and store the random salt used
+                var user = Protector.Register(customer.Name, customer.Password);
+                xmlWriter.WriteElementString("password", user.SaltedHashedPassword);
+                xmlWriter.WriteElementString("salt", user.Salt);
+                xmlWriter.WriteEndElement();    // customer
             }
+            xmlWriter.WriteEndElement();    // customers
+            xmlWriter.WriteEndDocument();
+            xmlWriter.Close();
         }   
 
         private static void customerXMLFileReader(string customerName, string password)
         {
-            string filePath = Combine(CurrentDirectory, customerName + ".xml");
-
-            var xmlCustomerSerializer = new XmlSerializer(typeof(Customer));
-
-            using(FileStream xmlLoad = File.Open(filePath, FileMode.Open))
-            {
-                var loadedCustomer = (Customer)xmlCustomerSerializer.Deserialize(xmlLoad);
-                
-                Console.WriteLine($"In customerXMLFileReader function: {loadedCustomer.Name}, {loadedCustomer.Roles.ToString()}, {loadedCustomer.EncryptedCardNumber}");
-
-                string cardNumber = Protector.Decrypt(loadedCustomer.EncryptedCardNumber,password);
-                
-                WriteLine($"{loadedCustomer.Name}, {cardNumber}, {loadedCustomer.Salt}");
-            }  
+            //TODO
         }
     }
 }

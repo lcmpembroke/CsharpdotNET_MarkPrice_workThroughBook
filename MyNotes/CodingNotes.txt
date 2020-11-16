@@ -46,8 +46,8 @@ that make up the model.
 Here in ExportDataDifferentSerialization project:
 Northwind.db is database
 Northwind.cs is the context class for the database.
-    Has method OnConfiguring()  - to point to location of database, and setting up database context options
-    Has method OnModelCreating() - where EF Core Fluent API used to set up fields in entites as required, string lengths etc, query filters
+    override the protected method OnConfiguring()  - to point to location of database, and setting up database context options i.e. protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    override the protected OnModelCreating() - where EF Core Fluent API used to set up fields in entites as required, string lengths etc, query filters
     It defines the entity classes as properties of DBSets of the entity type  e.g. public DbSet<Category> Categories { get; set; })
 Category.cs and Product.cs are both entity classes  - these relate to their tables. 
     Can use annotation attributes here (as alternative to EF Core fluent API for stating field lengths, rename a column for use in C# code etc)
